@@ -79,17 +79,43 @@ class SliderController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Slider $slider)
     {
-        //
+        return view('admin.slider.edit', compact('slider'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Slider $slider)
     {
-        //
+        $data = $request->validate([
+            'banner'         => 'image|max:2048',
+            'title'          => 'required|string|max:255',
+            'type'           => 'required|string|max:255',
+            'starting_price' => 'required|string|max:255',
+            'btn_url'        => 'required|string|max:255',
+            'serial'         => 'required|string|max:255',
+            'status'         => 'required|string|max:255',
+        ]);
+
+
+        $imagePath = $this->uploadImage($request, 'banner', 'uploads/slider', $request->banner);
+
+        $slider->banner         = $request->banner ? $imagePath : $slider->banner;
+        $slider->type           = $data['type'];
+        $slider->title          = $data['title'];
+        $slider->starting_price = $data['starting_price'];
+        $slider->btn_url        = $data['btn_url'];
+        $slider->serial         = $data['serial'];
+        $slider->status         = $data['status'];
+
+        $slider->save();
+
+        toastr()->success('Sldier updated successfully');
+
+        return redirect()->back();
+
     }
 
     /**
@@ -97,6 +123,15 @@ class SliderController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $slider = Slider::findOrFail($id);
+
+        // Delete the slider image
+        $this->deleteImage($slider->banner);
+
+        // Delete the slider record
+        $slider->delete();
+
+        // Return a success response
+        return response()->json([ 'status' => 'success', 'message' => 'Deleted Successfully' ]);
     }
 }
