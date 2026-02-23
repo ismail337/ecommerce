@@ -40,7 +40,7 @@ class SliderDataTable extends DataTable
                     return '<span class="badge badge-danger">Inactive</span>';
                 }
             })
-            ->rawColumns([ 'banner', 'action','status' ])
+            ->rawColumns([ 'banner', 'action', 'status' ])
             ->setRowId('id');
     }
 
@@ -91,7 +91,7 @@ class SliderDataTable extends DataTable
             Column::computed('action')
                 ->exportable(false)
                 ->printable(false)
-                ->width(100)
+                ->width(200)
                 ->addClass(''),
         ];
     }

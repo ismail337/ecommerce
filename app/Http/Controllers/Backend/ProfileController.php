@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-
+use App\Traits\imageUploadTrait;
 class ProfileController extends Controller
 {
+
+    use imageUploadTrait;
     public function index(Request $request)
     {
         return view('admin.profile.index');
@@ -27,7 +29,16 @@ class ProfileController extends Controller
 
         $user = User::find(auth()->id());
 
+
+        $profile_image = $this->updateImage($request, 'image', 'uploads/profile', $user->profile_image);
+
+        $user->profile_image = $profile_image ?? $user->profile_image;
+
+
+
         if ($request->hasFile('image')) {
+
+
 
             if ($user->profile_image && file_exists(public_path($user->profile_image))) {
                 unlink(public_path($user->profile_image));

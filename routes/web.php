@@ -7,6 +7,8 @@ use App\Http\Controllers\Backend\VendorController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\UserDashboardController;
 use App\Http\Controllers\Frontend\UserProfileController;
+use App\Http\Controllers\Frontend\FlashSaleController;
+use App\Http\Controllers\Frontend\ProductDetailsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +23,18 @@ use App\Http\Controllers\Frontend\UserProfileController;
 
 Route::get('/', [ HomeController::class, 'index' ])->name('home');
 
+
+// flash sale page
+
+Route::get('flash-sale', [ FlashSaleController::class, 'index' ])->name('flash-sale');
+
+
+// product details page
+
+Route::get('product-details/{slug}', [ ProductDetailsController::class, 'index' ])->name('product-details');
+
+
+
 // Route::get('/dashboard', function () {
 //     return view('frontend.dashboard.dashboard');
 // })->middleware([ 'auth', 'verified' ])->name('dashboard');
@@ -33,6 +47,8 @@ Route::middleware('auth')->group(function () {
 
 Route::get('admin/login', [ AdminController::class, 'login' ])->name('admin.login');
 Route::get('vendor/login', [ VendorController::class, 'login' ])->name('vendor.login');
+
+
 
 
 

@@ -100,7 +100,7 @@ class SliderController extends Controller
         ]);
 
 
-        $imagePath = $this->uploadImage($request, 'banner', 'uploads/slider', $request->banner);
+        $imagePath = $this->uploadImage($request, 'banner', 'uploads/slider', $slider->banner);
 
         $slider->banner         = $request->banner ? $imagePath : $slider->banner;
         $slider->type           = $data['type'];

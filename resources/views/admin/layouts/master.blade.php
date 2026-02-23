@@ -16,6 +16,8 @@
     <link rel="stylesheet" href="{{ asset('backend/assets/modules/weather-icon/css/weather-icons.min.css') }}">
     <link rel="stylesheet" href="{{ asset('backend/assets/modules/weather-icon/css/weather-icons-wind.min.css') }}">
     <link rel="stylesheet" href="{{ asset('backend/assets/modules/summernote/summernote-bs4.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/bootstrap-iconpicker.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/modules/bootstrap-daterangepicker/daterangepicker.css') }}">
 
     {{-- data table --}}
     <link rel="stylesheet" href="//cdn.datatables.net/2.3.6/css/dataTables.dataTables.min.css">
@@ -38,7 +40,22 @@
         gtag('config', 'UA-94034622-3');
     </script>
     <!-- /END GA -->
+
+    <style>
+        #toast-container>.toast-success {
+            background-size: 16px 16px !important;
+        }
+
+        #toast-container>div {
+            background-position: 22px 25px !important;
+        }
+
+        #toast-container>.toast {
+            opacity: 0.85 !important;
+        }
+    </style>
 </head>
+
 
 <body>
     <div id="app">
@@ -79,16 +96,19 @@
     <script src="{{ asset('backend/assets/modules/jqvmap/dist/maps/jquery.vmap.world.js') }}"></script>
     <script src="{{ asset('backend/assets/modules/summernote/summernote-bs4.js') }}"></script>
     <script src="{{ asset('backend/assets/modules/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/modules/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
+
+    <script src="{{ asset('backend/assets/js/bootstrap-iconpicker.bundle.min.js') }}"></script>
     <!-- Page Specific JS File -->
     <script src="{{ asset('backend/assets/js/page/index-0.js') }}"></script>
 
     <!-- Template JS File -->
     <script src="{{ asset('backend/assets/js/scripts.js') }}"></script>
     <script src="{{ asset('backend/assets/js/custom.js') }}"></script>
-
-    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    {{-- toastr --}}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     {{-- Data Table --}}
     <script src="//cdn.datatables.net/2.3.6/js/dataTables.min.js"></script>
@@ -97,6 +117,11 @@
 
     <script>
         $(document).ready(function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
 
             $('body').on('click', '.delete-item', function(e) {
                 e.preventDefault();
@@ -115,20 +140,22 @@
                         $.ajax({
                             type: 'DELETE',
                             url: deleteUrl,
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
                             success: function(data) {
+                                console.log(data);
                                 if (data.status == 'success') {
                                     Swal.fire('Deleted!', data.message);
+                                    window.location.reload();
+                                } else if (data.status == 'error') {
+                                    Swal.fire('Cant Delete ',
+                                        data.message,
+                                        'error');
                                 }
-                                window.location.reload();
+
                             },
                             error: function(error) {
                                 console.log(error);
                             }
                         });
-
 
                     }
                 });
@@ -136,6 +163,9 @@
         })
     </script>
     <script>
+        toastr.options = {
+            positionClass: 'toast-bottom-right'
+        };
         @if ($errors->any())
             @foreach ($errors->all() as $error)
                 toastr.error("{{ $error }}");
