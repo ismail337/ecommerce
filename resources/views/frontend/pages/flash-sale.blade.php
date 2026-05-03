@@ -1,9 +1,11 @@
 @extends('frontend.layouts.master')
-
+@section('title')
+    {{ $generalSetting->site_name }} | Flash Sale
+@endsection
 @section('content')
     <!--============================
-                                                                                                                        BREADCRUMB START
-                                                                                                                    ==============================-->
+                                                                                                                                                                                                            BREADCRUMB START
+                                                                                                                                                                                                        ==============================-->
     <section id="wsus__breadcrumb">
         <div class="wsus_breadcrumb_overlay">
             <div class="container">
@@ -20,12 +22,12 @@
         </div>
     </section>
     <!--============================
-                                                                                                                        BREADCRUMB END
-                                                                                                                    ==============================-->
+                                                                                                                                                                                                            BREADCRUMB END
+                                                                                                                                                                                                        ==============================-->
 
     <!--============================
-                                                                                                                    DAILY DEALS DETAILS START
-                                                                                                                ==============================-->
+                                                                                                                                                                                                        DAILY DEALS DETAILS START
+                                                                                                                                                                                                    ==============================-->
     <section id="wsus__daily_deals">
         <div class="container">
             <div class="wsus__offer_details_area">
@@ -73,7 +75,7 @@
                         <div class="col-xl-3">
                             <div class="wsus__offer_det_single">
                                 <div class="wsus__product_item">
-                                    <a class="wsus__pro_link" href="product_details.html">
+                                    <a class="wsus__pro_link" href="{{ route('product-details', $item->product->slug) }}">
                                         <img src="{{ asset($item->product->thumb_image) }}" alt="product"
                                             class="img-fluid w-100 img_1" />
                                         @if ($item->product->productImageGalleries->count() > 0)
@@ -98,13 +100,35 @@
 
                                         @if (isDiscountActive($item->product))
                                             <p class="wsus__price">${{ $item->product->offer_price }}
-                                                <del>${{ $item->product->price }}</del>
+                                                <del>{{ $generalSetting->currency_icon }}{{ $item->product->price }}</del>
                                             </p>
                                         @else
-                                            <p class="wsus__price">${{ $item->product->price }}</p>
+                                            <p class="wsus__price">
+                                                {{ $generalSetting->currency_icon }}{{ $item->product->price }}</p>
                                         @endif
+                                        <form class="shopping-cart-form">
+                                            <input type="hidden" name="product_id" value="{{ $item->product->id }}">
+                                            @foreach ($item->product->productVariants as $variant)
+                                                @if ($variant->status != 0)
+                                                    <div class="col-xl-6 col-sm-6">
+                                                        <select class="d-none" name="variants_items[]">
+                                                            @foreach ($variant->productVariantItems as $variantItem)
+                                                                @if ($variantItem->status != 0)
+                                                                    <option value="{{ $variantItem->id }}"
+                                                                        {{ $variantItem->is_default == 1 ? 'selected' : '' }}>
+                                                                        {{ $variantItem->name }}
+                                                                        ({{ $generalSetting->currency_icon }}{{ $variantItem->additional_price }})
+                                                                    </option>
+                                                                @endif
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                            <input name="qty" type="hidden" value="1" />
+                                            <button type="submit" class="add_cart" href="#">add to cart</button>
 
-                                        <a class="add_cart" href="#">add to cart</a>
+                                        </form>
                                     </div>
                                 </div>
                                 <div class="wsus__offer_progress">
@@ -132,8 +156,8 @@
         </div>
     </section>
     <!--============================
-                                                                                                                    DAILY DEALS DETAILS END
-                                                                                                                ==============================-->
+                                                                                                                                                                                                        DAILY DEALS DETAILS END
+                                                                                                                                                                                                    ==============================-->
 @endsection
 
 @push('scripts')
@@ -147,6 +171,36 @@
             year: {{ date('Y', strtotime($flashSaleDate->end_date)) }},
             month: {{ date('n', strtotime($flashSaleDate->end_date)) }},
             day: {{ date('j', strtotime($flashSaleDate->end_date)) }}
+        });
+
+        $(document).ready(function() {
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $('.shopping-cart-form').on('submit', function(e) {
+                e.preventDefault();
+                let formdata = $(this).serialize();
+
+                $.ajax({
+                    url: "{{ route('add-to-cart') }}",
+                    method: 'POST',
+                    data: formdata,
+                    success: function(res) {
+                        if (res.status === 'success') {
+                            getCartCount();
+                            fetchSidebarCartProducts();
+                            toastr.success(res.message);
+                        }
+                    },
+                    error: function(err) {
+                        console.log(err);
+                    }
+                })
+            });
         });
     </script>
 @endpush

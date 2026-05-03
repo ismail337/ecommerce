@@ -14,6 +14,11 @@ use App\Http\Controllers\Backend\ProductVariantController;
 use App\Http\Controllers\Backend\ProductVariantItemController;
 use App\Http\Controllers\Backend\SellerProductController;
 use App\Http\Controllers\Backend\FlashSaleController;
+use App\Http\Controllers\Backend\SettingController;
+use App\Http\Controllers\Backend\CouponController;
+use App\Http\Controllers\Backend\ShippingRuleController;
+use App\Http\Controllers\Backend\PaymentSettingController;
+use App\Http\Controllers\Backend\PaypalSettingController;
 // AdminController routes
 
 Route::get('dashboard', [ AdminController::class, 'dashboard' ])->name('dashboard');
@@ -106,3 +111,25 @@ Route::post('flash-sale/add-product', [ FlashSaleController::class, 'addProduct'
 Route::put('flash-sale/show-at-home/status-change', [ FlashSaleController::class, 'chageShowAtHomeStatus' ])->name('flash-sale.show-at-home.change-status');
 Route::put('flash-sale-status', [ FlashSaleController::class, 'changeStatus' ])->name('flash-sale-status');
 Route::delete('flash-sale/{id}', [ FlashSaleController::class, 'destroy' ])->name('flash-sale.destroy');
+
+//coupon routes
+Route::put('coupons/change-status', [ CouponController::class, 'changeStatus' ])->name('coupons.change-status');
+
+Route::resource('coupons', CouponController::class);
+
+
+
+// Shipping Role routes
+Route::put('shipping-rule/change-status', [ ShippingRuleController::class, 'changeStatus' ])->name('shipping-rules.change-status');
+
+Route::resource('shipping-rule', ShippingRuleController::class);
+
+
+
+// setting routes
+
+Route::get('settings', [ SettingController::class, 'index' ])->name('settings.index');
+Route::put('settings/general', [ SettingController::class, 'updateGeneralSetting' ])->name('settings.update-general');
+
+Route::get('payment-settings', [ PaymentSettingController::class, 'index' ])->name('payment-settings.index');
+Route::put('paypal-setting/{id}', [ PaypalSettingController::class, 'update' ])->name('paypal-setting.update');

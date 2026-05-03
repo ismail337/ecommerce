@@ -62,6 +62,12 @@
 
                     <li class="{{ setActive(['admin.vendor-profile.*']) }}"><a class="nav-link"
                             href="{{ route('admin.vendor-profile.index') }}">Vendor Profile</a></li>
+
+                    <li class="{{ setActive(['admin.coupons.*']) }}"><a class="nav-link"
+                            href="{{ route('admin.coupons.index') }}">Coupon</a></li>
+
+                    <li class="{{ setActive(['admin.shipping-rule.*']) }}"><a class="nav-link"
+                            href="{{ route('admin.shipping-rule.index') }}">Shipping Rule</a></li>
                 </ul>
 
             </li>
@@ -76,6 +82,12 @@
                 </ul>
             </li>
 
+            <li><a class="nav-link" href="{{ route('admin.settings.index') }}"><i class="fas fa-wrench"></i>
+                    <span>Settings</span></a></li>
+
+            <li><a class="nav-link" href="{{ route('admin.payment-settings.index') }}"><i class="fas fa-wrench"></i>
+                    <span>Payment Settings</span></a></li>
+
 
             {{-- <li class="dropdown">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-columns"></i>
@@ -86,6 +98,9 @@
                     <li><a class="nav-link" href="layout-top-navigation.html">Top Navigation</a></li>
                 </ul>
             </li> --}}
+
+            {{-- <li><a class="nav-link" href="{{ route('admin.settings.index') }}"><i class="fas fa-wrench"></i>
+                    <span>Settings</span></a></li> --}}
 
 
 

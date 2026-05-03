@@ -114,6 +114,8 @@ class BrandController extends Controller
 
         $this->deleteImage($brand->logo);
 
+        $brand->delete();
+
         return response()->json([ 'status' => 'success', 'message' => 'Deleted Successfully' ]);
     }
 

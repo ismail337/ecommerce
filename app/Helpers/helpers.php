@@ -66,3 +66,71 @@ function productType($type)
 
 
 }
+
+function getCartTotal()
+{
+    $total = 0;
+    foreach (\Cart::content() as $product) {
+        $total += ($product->price + $product->options->variant_total_price) * $product->qty;
+    }
+    return $total;
+}
+// Main cart total after applying coupon discount
+function getMainCartTotal()
+{
+    if (Session::has('coupon')) {
+        $coupon   = Session::get('coupon');
+        $subTotal = getCartTotal();
+        if ($coupon['discount_type'] === 'amount') {
+
+            $total = max(0, $subTotal - $coupon['discount']);
+
+            return $total;
+        } elseif ($coupon['discount_type'] === 'percent') {
+
+            $discountAmount = ($subTotal * $coupon['discount']) / 100;
+            $total          = max(0, $subTotal - $discountAmount);
+
+            return $total;
+        }
+    } else {
+        return getCartTotal();
+    }
+}
+
+// getCartDiscount
+function getCartDiscount()
+{
+    if (Session::has('coupon')) {
+        $coupon   = Session::get('coupon');
+        $subTotal = getCartTotal();
+        if ($coupon['discount_type'] === 'amount') {
+
+            return $coupon['discount'];
+
+        } elseif ($coupon['discount_type'] === 'percent') {
+
+            $discountAmount = ($subTotal * $coupon['discount']) / 100;
+
+            return $discountAmount;
+        }
+    } else {
+        return 0;
+    }
+}
+
+
+function getShippingFee()
+{
+    if (Session::has('shipping_method')) {
+        return Session::get('shipping_method')['cost'];
+    } else {
+        return 0;
+    }
+}
+
+/** get payable amount */
+function getFinalPayableAmount()
+{
+    return getMainCartTotal() + getShippingFee();
+}

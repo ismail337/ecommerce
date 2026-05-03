@@ -1,11 +1,11 @@
 @extends('frontend.layouts.master')
 
-
+@section('title')
+    {{ $generalSetting->site_name }} | Product Details
+@endsection
 
 @section('content')
-    <!--============================
-                                            BREADCRUMB START
-                                        ==============================-->
+    {{-- BREADCRUMB START --}}
     <section id="wsus__breadcrumb">
         <div class="wsus_breadcrumb_overlay">
             <div class="container">
@@ -22,14 +22,10 @@
             </div>
         </div>
     </section>
-    <!--============================
-                                            BREADCRUMB END
-                                        ==============================-->
+    {{-- BREADCRUMB END --}}
 
 
-    <!--============================
-                                            PRODUCT DETAILS START
-                                        ==============================-->
+    {{-- PRODUCT DETAILS START --}}
     <section id="wsus__product_details">
         <div class="container">
             <div class="wsus__details_bg">
@@ -63,7 +59,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-7 col-md-7 col-lg-7">
+                    <div class="col-xl-5 col-md-7 col-lg-7">
                         <div class="wsus__pro_details_text">
                             <a class="title" href="javascript:;">{{ $product->name }}</a>
                             @if ($product->qty > 0)
@@ -75,10 +71,10 @@
                             @endif
                             @if (isDiscountActive($product))
                                 <h4>${{ $product->offer_price }}
-                                    <del>${{ $product->price }}</del>
+                                    <del>{{ $generalSetting->currency_icon }}{{ $product->price }}</del>
                                 </h4>
                             @else
-                                <h4>${{ $product->price }}</h4>
+                                <h4>{{ $generalSetting->currency_icon }}{{ $product->price }}</h4>
                             @endif
 
                             <p class="review">
@@ -111,7 +107,8 @@
                                                             @if ($variantItem->status != 0)
                                                                 <option value="{{ $variantItem->id }}"
                                                                     {{ $variantItem->is_default == 1 ? 'selected' : '' }}>
-                                                                    {{ $variantItem->name }} (${{ $variantItem->price }})
+                                                                    {{ $variantItem->name }}
+                                                                    ({{ $generalSetting->currency_icon }}{{ $variantItem->additional_price }})
                                                                 </option>
                                                             @endif
                                                         @endforeach
@@ -163,12 +160,53 @@
                         </div>
                     </div>
 
+                    <div class="col-xl-3 col-md-12 mt-md-5 mt-lg-0" style="position: relative;">
+                        <div class="wsus_pro_det_sidebar" id="sticky_sidebar"
+                            style="will-change: transform; transform: translateZ(0px);">
+                            <ul>
+                                <li>
+                                    <span><i class="fal fa-truck" aria-hidden="true"></i></span>
+                                    <div class="text">
+                                        <h4>Return Available</h4>
+                                        <!-- <p>Lorem Ipsum is simply dummy text of the printing</p> -->
+                                    </div>
+                                </li>
+                                <li>
+                                    <span><i class="far fa-shield-check" aria-hidden="true"></i></span>
+                                    <div class="text">
+                                        <h4>Secure Payment</h4>
+                                        <!-- <p>Lorem Ipsum is simply dummy text of the printing</p> -->
+                                    </div>
+                                </li>
+                                <li>
+                                    <span><i class="fal fa-envelope-open-dollar" aria-hidden="true"></i></span>
+                                    <div class="text">
+                                        <h4>Warranty Available</h4>
+                                        <!-- <p>Lorem Ipsum is simply dummy text of the printing</p> -->
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="wsus__det_sidebar_banner">
+                                <img src="images/blog_1.jpg" alt="banner" class="img-fluid w-100">
+                                <div class="wsus__det_sidebar_banner_text_overlay">
+                                    <div class="wsus__det_sidebar_banner_text">
+                                        <p>Black Friday Sale</p>
+                                        <h4>Up To 70% Off</h4>
+                                        <a href="#" class="common_btn">shope now</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="sticky_sidebar" class="wsus_pro_det_sidebar jquery-stickit-spacer"
+                            style="height: 464px; visibility: hidden !important; display: none !important;"></div>
+                    </div>
+
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-xl-12">
-                    <div class="wsus__pro_det_description">
+                    {{-- <div class="wsus__pro_det_description">
                         <div class="wsus__details_bg">
                             <ul class="nav nav-pills mb-3" id="pills-tab3" role="tablist">
                                 <li class="nav-item" role="presentation">
@@ -786,15 +824,15 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
 
             </div>
         </div>
     </section>
     <!--============================
-                                            PRODUCT DETAILS END
-                                        ==============================-->
+                                                                                                                                                                                                                                                                                                                                                            PRODUCT DETAILS END
+                                                                                                                                                                                                                                                                                                                                                        ==============================-->
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -812,3 +850,52 @@
         </div>
     </div>
 @endsection
+
+
+
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $('.shopping-cart-form').on('submit', function(e) {
+                e.preventDefault();
+                let formdata = $(this).serialize();
+
+                $.ajax({
+                    url: "{{ route('add-to-cart') }}",
+                    method: 'POST',
+                    data: formdata,
+                    success: function(res) {
+                        if (res.status === 'success') {
+                            getCartCount();
+                            fetchSidebarCartProducts();
+                            toastr.success(res.message);
+                        }
+                    },
+                    error: function(err) {
+                        console.log(err);
+                    }
+                })
+            });
+
+        });
+
+        function getCartCount() {
+            $.ajax({
+                url: "{{ route('cart.count') }}",
+                method: 'GET',
+                success: function(res) {
+                    $('#cart-count').text(res.cart_count);
+                },
+                error: function(err) {
+                    console.log(err);
+                }
+            })
+        }
+    </script>
+@endpush
